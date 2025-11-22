@@ -1,0 +1,112 @@
+
+;test cases
+load s0,0	;register to help square loop function
+load s1,5	;xcenter circle center
+load s2,0	;ycenter circle center
+load s3,1	;x1 rectangle
+load s4,4	;y1 rectangle
+load s5,6	;x2 rectangle
+load s6,5	;y2 rectangle
+load s7,6	;radius
+;;;;;;
+
+COMP s3,s5				;;x1 and x2 comparison
+JUMP c,lower_part
+
+lower_part:
+	
+	COMP s6,s4			;;y1 y2 comparison if its equal go to left side hence you finished lower part
+	;JUMP z,left_part
+	CALL nz,square_loop_x  ;;taking square of subtraction of x values and storing into s3
+	COMP s6,s4
+	CALL nz,square_loop_y  ;;taking square of subtraction of x values and storing into s3
+	CALL square_loop_r_r
+	ADD s8,s9
+	COMP s8,sA
+	CALL c,cross
+	JUMP done
+	
+square_loop_x:
+	SUB s3,s1
+	
+	TEST s3, 128     ; does s1 have MSB = 1?
+	CALL NZ, negative_x
+	TEST s3, 128
+	CALL Z, positive_x
+    RET
+    
+	negative_x:
+		XOR  s3, 255        ; invert bits (FFh = 255 dec)
+		ADD  s3, 1          ; +1
+	    CALL square_loop_x_x
+		RET 
+
+	positive_x:
+		CALL square_loop_x_x
+		RET
+	; else positive
+	
+	; squares value in s3
+; result -> s8
+
+	square_loop_x_x:
+	    LOAD s0, s3      ; counter = s3
+	    LOAD s8, 0       ; result = 0
+	
+	square_loop_inside_x:
+	    ADD  s8, s3      ; result += s3
+	    SUB  s0, 1       ; counter -= 1
+	    JUMP NZ, square_loop_inside_x
+	    RET
+	
+	
+
+square_loop_y:
+	SUB s4,s2
+	
+	TEST s4, 128     ; does s1 have MSB = 1?
+	CALL NZ, negative_y
+	TEST s4, 128
+	CALL Z, positive_y
+	RET
+	
+	negative_y:
+		XOR  s4, 255        ; invert bits (FFh = 255 dec)
+		ADD  s4, 1          ; +1
+	    CALL square_loop_y_y
+		RET 
+	
+	positive_y:
+		CALL square_loop_y_y
+		RET
+	; else positive
+	
+	square_loop_y_y:
+	    LOAD s0, s4      ; counter = s3
+	    LOAD s9, 0       ; result = 0
+	
+	square_loop_inside_y:
+	    ADD  s9, s4      ; result += s3
+	    SUB  s0, 1       ; counter -= 1
+	    JUMP NZ, square_loop_inside_y
+	    RET
+	    
+square_loop_r_r:
+	    LOAD s0, s7      ; counter = s3
+	    LOAD sA, 0       ; result = 0
+	
+	square_loop_inside_r:
+	    ADD  sA, s7      ; result += s3
+	    SUB  s0, 1       ; counter -= 1
+	    JUMP NZ, square_loop_inside_r
+	    RET	    
+	
+cross:
+	WRMEM s8,0
+	WRMEM sA,1
+RET 
+
+done:
+	JUMP done
+;left_part:
+;		JUMP left_part
