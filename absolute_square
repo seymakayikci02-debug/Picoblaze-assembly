@@ -1,0 +1,30 @@
+;taking square of both negative and positive numbers
+	LOAD s0 10
+	LOAD s1 21
+	SUB s0,s1
+	
+	TEST s0, 128     ; does s1 have MSB = 1?
+	CALL NZ, negative
+	TEST s0, 128
+	CALL Z, positive
+
+negative:
+	XOR  s0, 255        ; invert bits (FFh = 255 dec)
+	ADD  s0, 1          ; +1
+	LOAD  s3, 3         ;test flag
+    JUMP square_loop
+	RET 
+
+positive:
+	JUMP square_loop
+	LOAD  s4, 4         ;test flag
+	RET
+; else positive
+
+square_loop:
+	LOAD s2, s0
+	JUMP square_loop_inside
+square_loop_inside:
+    	ADD  s5, s0        ; s0 += x       ;rhe result is shown in s5
+    	SUB  s2, 01        ; counter -= 1 
+    	JUMP NZ, square_loop_inside
