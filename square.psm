@@ -1,0 +1,10 @@
+; Input : s1 = x
+; Output: s0 = x*x
+	LOAD s1, 11          ;test input
+    LOAD s0, 00        ; result = 0
+    LOAD s2, s1        ; counter = x
+
+square_loop:
+    ADD  s0, s1        ; s0 += x
+    SUB  s2, 01        ; counter -= 1
+    JUMP NZ, square_loop
