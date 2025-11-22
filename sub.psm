@@ -11,12 +11,12 @@
 
 negative:
 	LOAD s2,02
-	LOAD s3,05
+	LOAD s3,05			;test flag
 	JUMP done
 
 positive:
 	LOAD s2,03
-	LOAD s4,06
+	LOAD s4,06			;test flag
 	JUMP done
 	
 done:
