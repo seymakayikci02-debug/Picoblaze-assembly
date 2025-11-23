@@ -1,16 +1,16 @@
 
 ;test cases
 load s0,0	;register to help square loop function
-load s1,252	;xcenter circle center
-load s2,252	;ycenter circle center
-load s3,246	;x1 rectangle
-load s4,246	;y1 rectangle
-load s5,10	;x2 rectangle
-load s6,10	;y2 rectangle
-load s7,3	;radius
+load s1,0	;xcenter circle center
+load s2,0	;ycenter circle center
+load s3,1	;x1 rectangle
+load s4,255	;y1 rectangle
+load s5,3	;x2 rectangle
+load s6,1	;y2 rectangle
+load s7,1	;radius
 ;;;;;;
 
-;test cases
+;writing test cases to memory to store stable values and also visit every point around rectangle 
 wrmem s0,00	;register to help square loop function
 wrmem s1,01	;xcenter circle center
 wrmem s2,02	;ycenter circle center
@@ -22,32 +22,33 @@ wrmem s7,07	;radius
 ;;;;;;
 
 COMP s3,s5				;;x1 and x2 comparison
-JUMP c,lower_part
+JUMP c,lower_part		;;start from lower part of the rectangle
 
 lower_part:
 	
 	
 	COMP s3,s5			;;x1 x2 comparison if its equal go to right side hence you finished lower part
 	JUMP z,right_part
-	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_y  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_r_r
-	ADD s8,s9
-	COMP s8,sA
-	JUMP c,cross
-	JUMP z,cross
-	rdmem s3, 03         ; s1 = RAM[10]
-	ADD  s3, 1           ; s1 = s1 + 1
-	rdmem s0,00	;register to help square loop function
-	rdmem s1,01	;xcenter circle center
-	rdmem s2,02	;ycenter circle center
-	wrmem s3,03	;x1 rectangle
-	rdmem s4,04	;y1 rectangle
-	rdmem s5,05	;x2 rectangle
-	rdmem s6,06	;y2 rectangle
-	rdmem s7,07	;radius
-	ADD sB,1	;counter for x side
-	JUMP lower_part
+	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s8
+	CALL square_loop_y  ;;taking square of subtraction of y values and storing into s9
+	CALL square_loop_r_r  ;;taking square of radius value and storing into sA
+	ADD s8,s9				;;sum squared values to compare with squared radius
+	COMP s8,sA				;;checking root( x^2 + y^2 ) = root( r^2 ) but no need to take root
+	JUMP c,cross		;;c is one if sA>s8 that means if radius is bigger than distance go cross function
+	JUMP z,cross		;;z is one if sA==s8
+	rdmem s3, 03         ; s3 = RAM[03]
+	ADD  s3, 1         
+	rdmem s0,00	;
+	rdmem s1,01	;
+	rdmem s2,02	;
+	wrmem s3,03	;increased s3 value is written inside the memory
+	rdmem s4,04	;
+	rdmem s5,05	;
+	rdmem s6,06	;
+	rdmem s7,07	;
+	ADD sB,1	;measuring the length of the lower part to use in the upper part
+	;other values is kept as same
+	JUMP lower_part ;;after increasing x value lowerPart function is repeated until x1 x2 is equal
 
 
 right_part:
@@ -55,102 +56,110 @@ right_part:
 	
 	COMP s4,s6			;;y1 y2 comparison if its equal go to upper side hence you finished right part
 	JUMP z,upper_part
-	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_y  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_r_r
-	ADD s8,s9
-	COMP s8,sA
-	JUMP c,cross
-	JUMP z,cross
-	rdmem s4, 04         ; s1 = RAM[10]
-	ADD  s4, 1           ; s1 = s1 + 1
-	rdmem s0,00	;register to help square loop function
-	rdmem s1,01	;xcenter circle center
-	rdmem s2,02	;ycenter circle center
-	wrmem s4,04	;x1 rectangle
-	rdmem s3,03	;y1 rectangle
-	rdmem s5,05	;x2 rectangle
-	rdmem s6,06	;y2 rectangle
-	rdmem s7,07	;radius
-	ADD sC,1	;counter for x side
-	JUMP right_part
+	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s8
+	CALL square_loop_y  ;;taking square of subtraction of x values and storing into s9
+	CALL square_loop_r_r		;;taking square of radius value and storing into sA
+	ADD s8,s9		;;sum squared values to compare with squared radius
+	COMP s8,sA		;;checking root( x^2 + y^2 ) = root( r^2 ) but no need to take root
+	JUMP c,cross	;;c is one if sA>s8 that means if radius is bigger than distance go cross function
+	JUMP z,cross		;;z is one if sA==s8
+	rdmem s4, 04         ; s3 = RAM[03]
+	ADD  s4, 1          ; s1 = s1 + 1
+	rdmem s0,00	;
+	rdmem s1,01	;
+	rdmem s2,02	;
+	wrmem s4,04	;increased s4 value is written inside the memory
+	rdmem s3,03	;
+	rdmem s5,05	;
+	rdmem s6,06	;
+	rdmem s7,07	;
+	ADD sC,1	;measuring the length of the side part to use in the other side part
+	JUMP right_part		;;after increasing y value right_part function is repeated until y1 y2 is equal
 
 
+	;;we are at the upper right corner where x1==x2, y1==y2 
 upper_part:	
 	
 
-	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_y  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_r_r
-	ADD s8,s9
+	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s8
+	CALL square_loop_y  ;;taking square of subtraction of x values and storing into s9
+	CALL square_loop_r_r	;;taking square of radius value and storing into sA
+	ADD s8,s9		;;sum squared values to compare with squared radius
 	COMP s8,sA
 	JUMP c,cross
 	JUMP z,cross
-	rdmem s3, 03         ; s1 = RAM[10]
-	SUB  s3, 1           ; s1 = s1 + 1
-	rdmem s0,00	;register to help square loop function
-	rdmem s1,01	;xcenter circle center
-	rdmem s2,02	;ycenter circle center
-	wrmem s3,03	;x1 rectangle
-	rdmem s4,04	;y1 rectangle
-	rdmem s5,05	;x2 rectangle
-	rdmem s6,06	;y2 rectangle
-	rdmem s7,07	;radius
+	rdmem s3, 03         ; 
+	SUB  s3, 1           ;x1 value is going back to the starting point while y1 value is kept stable
+	rdmem s0,00	;
+	rdmem s1,01	;
+	rdmem s2,02	;
+	wrmem s3,03	;
+	rdmem s4,04	;
+	rdmem s5,05	;
+	rdmem s6,06	;
+	rdmem s7,07	;
 	SUB  sB, 1       ; counter -= 1
-	;COMP  sB, 0
-	JUMP Z,left_part
-	JUMP upper_part
+	JUMP Z,left_part ;if sB value becomes 0, continue with left_part 
+	JUMP upper_part	;visit every point on the upper_part
 
 
 left_part:	
 	
 
-	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_y  ;;taking square of subtraction of x values and storing into s3
-	CALL square_loop_r_r
-	ADD s8,s9
+	CALL square_loop_x  ;;taking square of subtraction of x values and storing into s8
+	CALL square_loop_y  ;;taking square of subtraction of x values and storing into s9
+	CALL square_loop_r_r		;;taking square of radius value and storing into sA
+	ADD s8,s9	;;sum squared values to compare with squared radius
 	COMP s8,sA
-	JUMP c,cross ;BURASII
+	JUMP c,cross ;
 	JUMP z,cross 
-	rdmem s4, 04         ; s1 = RAM[10]
-	SUB  s4, 1           ; s1 = s1 + 1
-	rdmem s0,00	;register to help square loop function
-	rdmem s1,01	;xcenter circle center
-	rdmem s2,02	;ycenter circle center
-	wrmem s4,04	;x1 rectangle
-	rdmem s3,03	;y1 rectangle
-	rdmem s5,05	;x2 rectangle
-	rdmem s6,06	;y2 rectangle
-	rdmem s7,07	;radius
+	rdmem s4, 04         ; 
+	SUB  s4, 1           ;;y1 value is going back to the starting point while x1 value is kept stable
+	rdmem s0,00	;
+	rdmem s1,01	;
+	rdmem s2,02	;
+	wrmem s4,04	;
+	rdmem s3,03	;
+	rdmem s5,05	;
+	rdmem s6,06	;
+	rdmem s7,07	;
 	SUB  sC, 1       ; counter -= 1
-	;COMP  sC, 0
-	JUMP Z,circle_inside_rec
-	JUMP left_part
+	JUMP Z,circle_inside_rec	;if sC value becomes 0, continue with circle_inside_rec
+	JUMP left_part	;visit every point on the upper_part
 
 
+;; Every point on the edges of the rectangle has been visited so far. 
+;; If there is no intersection point, also check the condition:
+;; the rectangle contains the circle without touching it.
 
 circle_inside_rec:	
 	
-	SUB s1,s7		;x_center-radius
-	COMP s1,s3		;if x1 bigger than the result finish program
+;;(xCenter - radius) is greater than or equal to x1
+	SUB s1,s7		
+	COMP s1,s3		
 	JUMP c,done
-	rdmem s1,01	;xcenter circle center
-	
+	rdmem s1,01	;;Changed s1 value is going back to its original value
+
+;; (xCenter + radius) is less than or equal to x2	
 	ADD s1,s7
 	COMP s5, s1
 	JUMP c,done
-	rdmem s1,01	;xcenter circle center
-	
+	rdmem s1,01	;;Changed s1 value is going back to its original value
+
+;; (yCenter - radius) is greater than or equal to y1	
 	SUB s2,s7
 	COMP s2,s4
 	JUMP c,done
-	rdmem s2,02	;ycenter circle center
-	
+	rdmem s2,02	;;Changed s2 value is going back to its original value
+
+;; (yCenter + radius) is less than or equal to y2	
 	ADD s2,s7
 	COMP s5, s1
 	JUMP c,done
-	rdmem s2,02	;xcenter circle center
-	
+	rdmem s2,02	;;Changed s2 value is going back to its original value
+
+;;If any conditions is satisfied write 10. memory address 1 and jump to done to finish code 
+;;Writing 1 to 10. address indicating circle inside rectangle	
 	LOAD s0,1
 	wrmem s0,10
 	JUMP done
@@ -162,6 +171,7 @@ square_loop_x:
 	
 	TEST s3, 128     ; does s1 have MSB = 1?
 	CALL NZ, negative_x
+	
 	TEST s3, 128
 	CALL Z, positive_x
     RET
@@ -178,7 +188,7 @@ square_loop_x:
 	; else positive
 	
 	; squares value in s3
-; result -> s8
+	; result -> s8
 
 	square_loop_x_x:
 	    LOAD s0, s3      ; counter = s3
@@ -195,7 +205,7 @@ square_loop_x:
 square_loop_y:
 	SUB s4,s2
 	
-	TEST s4, 128     ; does s1 have MSB = 1?
+	TEST s4, 128     ; does s4 have MSB = 1?
 	CALL NZ, negative_y
 	TEST s4, 128
 	CALL Z, positive_y
@@ -213,33 +223,38 @@ square_loop_y:
 	; else positive
 	
 	square_loop_y_y:
-	    LOAD s0, s4      ; counter = s3
+	    LOAD s0, s4      ; counter = s4
 	    LOAD s9, 0       ; result = 0
 	
 	square_loop_inside_y:
-	    ADD  s9, s4      ; result += s3
+	    ADD  s9, s4      ; result += s4
 	    SUB  s0, 1       ; counter -= 1
 	    JUMP NZ, square_loop_inside_y
 	    RET
 	    
 square_loop_r_r:
-	    LOAD s0, s7      ; counter = s3
+	    LOAD s0, s7      ; counter = s4
 	    LOAD sA, 0       ; result = 0
 	
 	square_loop_inside_r:
-	    ADD  sA, s7      ; result += s3
+	    ADD  sA, s7      ; result += s4
 	    SUB  s0, 1       ; counter -= 1
 	    JUMP NZ, square_loop_inside_r
 	    RET	    
 	
+	
+	;;If there is a overlapping point write first point that is found to be overlapped
+	;;This can be the closest point or NOT
 cross:
-	RDMEM s3,03
-	RDMEM s4,04
+	RDMEM s3,03		
+	RDMEM s4,04		
 	WRMEM s3,08
 	WRMEM s4,09
 JUMP done
 
+
 done:
 	JUMP done
+;finish program statement
 ;left_part:
 ;		JUMP left_part
